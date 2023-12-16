@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+source .env
+docker run --rm -ti -v ~/.aws:/root/.aws -v $(pwd):/aws --env S3_BUCKET --env S3_PREFIX amazon/aws-cli s3 sync out/ s3://$S3_BUCKET/$S3_PREFIX

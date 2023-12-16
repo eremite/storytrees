@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+source .env
+
+IN_HTML=index.html
+IN_RUBY=story.rb
+for story_name in $STORY_NAMES; do
+  rm -rf "out/$story_name"
+  mkdir -p "out/$story_name"
+  OUT_HTML=out/$story_name/index.html
+  export IN_YAML=data/$story_name/leaves.yaml
+  cp -r data/$story_name/*.png out/$story_name
+  sed '/# REQUIRE_RUBY/Q' "$IN_HTML" > $OUT_HTML # https://askubuntu.com/a/1284775
+  docker run -v "$PWD":/app -w /app -e IN_YAML ruby:3.2 ruby -e 'require "yaml"; puts "LEAVES = #{YAML.load(File.read(ENV["IN_YAML"]))}"' >> $OUT_HTML
+  cat $IN_RUBY >> $OUT_HTML
+  sed -n '/REQUIRE_RUBY/,$p' $IN_HTML | tail -n +2 >> $OUT_HTML # https://unix.stackexchange.com/a/205680
+done
